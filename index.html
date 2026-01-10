@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KomikDesu by kev.soft</title>
+    
+    <meta name="theme-color" content="#5865F2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://c.termai.cc/i188/y7shy.jpg">
+    <link rel="manifest" id="pwa-manifest">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+        :root {
+            --blurple: #5865F2; 
+            --blurple-dark: #4752c4;
+            --bg-light: #F2F3F5; 
+            --bg-white: #FFFFFF;
+            --text-dark: #2E3338;
+            --text-muted: #747F8D;
+            --border: #E3E5E8;
+            --danger: #ED4245;
+            --gold: #F1C40F;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        
+        body { 
+            background: var(--bg-light); 
+            color: var(--text-dark); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* --- LOGIN PAGE PREMIUM LOOK --- */
+        #entry-overlay {
+            position: fixed; inset: 0; background: linear-gradient(135deg, var(--blurple) 0%, #404eed 100%); 
+            z-index: 60000; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        
+        .login-container { position: relative; width: 100%; max-width: 400px; }
+        
+        .chibi-peek { 
+            position: absolute; top: -130px; left: 50%; transform: translateX(-50%); 
+            width: 160px; z-index: -1; animation: peekAnim 4s ease-in-out infinite; 
+        }
+        @keyframes peekAnim { 0%, 100% { transform: translateX(-50%) translateY(15px); } 50% { transform: translateX(-50%) translateY(0px); } }
+
+        .login-card { 
+            background: var(--bg-white); padding: 40px 30px; border-radius: 24px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center;
+        }
+
+        .login-card h2 { font-weight: 800; font-size: 28px; margin-bottom: 8px; color: var(--text-dark); }
+        .login-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
+
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; color: var(--text-muted); }
+
+        .input-box { 
+            width: 100%; padding: 14px 16px; background: #f3f4f6; border: 2px solid transparent; 
+            border-radius: 12px; font-weight: 600; font-family: inherit; transition: 0.3s;
+        }
+        .input-box:focus { border-color: var(--blurple); background: #fff; }
+
+        .btn-main { 
+            width: 100%; padding: 14px; background: var(--blurple); color: white; border: none; 
+            border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; 
+            transition: 0.3s; margin-top: 10px; box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+        }
+        .btn-main:hover { background: var(--blurple-dark); transform: translateY(-2px); }
+
+        .divider { display: flex; align-items: center; margin: 25px 0; color: #ddd; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #eee; }
+        .divider span { padding: 0 15px; color: #aaa; }
+
+        /* Tombol Google dengan Logo */
+        .btn-google { 
+            width: 100%; padding: 12px; background: #fff; color: #3c4043; border: 1px solid #dadce0; 
+            border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.3s;
+        }
+        .btn-google img { width: 20px; height: 20px; }
+        .btn-google:hover { background: #f8f9fa; border-color: #d2e3fc; box-shadow: 0 1px 3px rgba(60,64,67, 0.3); }
+
+        /* --- DASHBOARD & READER CSS TETAP SAMA --- */
+        #dashboard { display: none; padding-top: 80px; flex: 1; }
+        nav { position: fixed; top: 0; width: 100%; height: 75px; background: var(--bg-white); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 5%; z-index: 1000; gap: 15px; }
+        .search-container { flex: 1; }
+        .search-container input { width: 100%; max-width: 800px; padding: 12px 20px; background: var(--bg-light); border: none; border-radius: 10px; font-weight: 600; }
+        .user-section { font-size: 11px; font-weight: 800; color: var(--blurple); cursor: pointer; display: flex; gap: 15px; }
+        .tabs-container { width: 90%; max-width: 1200px; margin: 10px auto; display: flex; gap: 20px; border-bottom: 2px solid var(--border); }
+        .tab-item { padding: 10px 5px; cursor: pointer; font-weight: 700; color: var(--text-muted); border-bottom: 3px solid transparent; }
+        .tab-item.active { color: var(--blurple); border-bottom-color: var(--blurple); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding: 25px 5%; }
+        .manga-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); position: relative; cursor: pointer; }
+        .manga-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+        #reader-view { position: fixed; inset: 0; background: #0b0b0b; z-index: 70000; display: none; flex-direction: column; }
+        .reader-header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .reader-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: #0b0b0b; }
+        .reader-body img { width: 100%; max-width: 800px; height: auto; display: block; object-fit: contain; }
+        .reader-nav-footer { background: #fff; padding: 20px; display: flex; justify-content: center; gap: 15px; border-top: 1px solid var(--border); }
+        .btn-nav { padding: 10px 25px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; background: var(--blurple); color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="entry-overlay">
+        <div class="login-container">
+            <img src="https://c.termai.cc/i188/y7shy.jpg" class="chibi-peek">
+            
+            <div class="login-card">
+                <h2>KomikDesu</h2>
+                <p>Masuk untuk simpan favorit & riwayat</p>
+                
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" class="input-box" placeholder="nama@email.com">
+                </div>
+                
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" class="input-box" placeholder="••••••••">
+                </div>
+                
+                <button class="btn-main" onclick="loginEmail()">Masuk Sekarang</button>
+                
+                <div class="divider"><span>Atau</span></div>
+                
+                <button class="btn-google" onclick="loginGoogle()">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google Logo">
+                    Lanjutkan dengan Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <main id="dashboard">
+        <nav>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Cari judul komik..." onkeyup="handleSearch(event)">
+            </div>
+            <div class="user-section">
+                <span id="user-display">USER</span>
+                <span onclick="logout()" style="color:var(--danger)">LOGOUT</span>
+            </div>
+        </nav>
+
+        <div class="brand-container" style="width:90%; margin:20px auto">
+            <h1 style="font-size:36px; color:var(--blurple)">KomikDesu</h1>
+            <div class="tabs-container">
+                <div class="tab-item active" id="tab-home" onclick="changeTab('home')">Beranda</div>
+                <div class="tab-item" id="tab-favorit" onclick="changeTab('favorit')">Favorit</div>
+                <div class="tab-item" id="tab-history" onclick="changeTab('history')">History</div>
+            </div>
+        </div>
+
+        <div class="grid" id="main-grid"></div>
+    </main>
+
+    <div id="reader-view">
+        <div class="reader-header">
+            <div id="r-title" style="font-weight:800; max-width:60%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Title</div>
+            <button class="btn-nav" style="background:var(--danger)" onclick="closeReader()">Tutup</button>
+        </div>
+        <div class="reader-body" id="r-images"></div>
+        <div class="reader-nav-footer">
+            <button id="btn-prev" class="btn-nav" onclick="changeChapter(-1)">Sebelumnya</button>
+            <button id="btn-next" class="btn-nav" onclick="changeChapter(1)">Selanjutnya</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // JavaScript Logic (Firebase & API) sama dengan versi sebelumnya
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4sXX-UMpQU3-4wGEBqWSxSHQ7b2RTJ-M",
+            authDomain: "kevsoft-de038.firebaseapp.com",
+            projectId: "kevsoft-de038",
+            databaseURL: "https://kevsoft-de038-default-rtdb.firebaseio.com",
+            storageBucket: "kevsoft-de038.firebasestorage.app",
+            messagingSenderId: "778701933552",
+            appId: "1:778701933552:web:6c5816db2413a82afbab35"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const provider = new GoogleAuthProvider();
+        const API = "https://api.mangadex.org";
+
+        let currentUser = null;
+        let userData = { favorites: [], history: [] };
+        let currentTab = 'home';
+        let chaptersList = [];
+        let currentChapIdx = -1;
+
+        onAuthStateChanged(auth, user => {
+            if(user) {
+                currentUser = user;
+                document.getElementById('user-display').innerText = user.email.split('@')[0].toUpperCase();
+                document.getElementById('entry-overlay').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                onValue(ref(db, 'users/' + user.uid), (snap) => {
+                    userData = snap.exists() ? snap.val() : { favorites: [], history: [] };
+                    if(currentTab !== 'home') refreshGrid();
+                });
+                fetchManga();
+            }
+        });
+
+        window.changeTab = (tab) => {
+            currentTab = tab;
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            refreshGrid();
+        };
+
+        function refreshGrid() {
+            if(currentTab === 'home') fetchManga();
+            else if(currentTab === 'favorit') renderList(userData.favorites || []);
+            else if(currentTab === 'history') renderList(userData.history || []);
+        }
+
+        async function fetchManga(query = "") {
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = "Memuat...";
+            let url = query ? `${API}/manga?title=${query}&limit=20&includes[]=cover_art&availableTranslatedLanguage[]=id` : `${API}/manga?limit=20&availableTranslatedLanguage[]=id&includes[]=cover_art&contentRating[]=safe&order[followedCount]=desc`;
+            const resp = await fetch(url);
+            const json = await resp.json();
+            renderList(json.data);
+        }
+
+        function renderList(data) {
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = data.length ? "" : "<div style='grid-column:1/-1; text-align:center; padding:50px;'>Kosong.</div>";
+            data.forEach(m => {
+                const title = m.attributes.title.en || Object.values(m.attributes.title)[0];
+                const cov = m.relationships?.find(r => r.type === 'cover_art');
+                const img = m.savedImg || `https://uploads.mangadex.org/covers/${m.id}/${cov?.attributes?.fileName}.256.jpg`;
+                const card = document.createElement('div');
+                card.className = 'manga-card';
+                card.innerHTML = `<img src="${img}" loading="lazy" onclick="openComic('${m.id}', '${title.replace(/'/g,"")}', '${img}')"><div class="info">${title}</div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        window.openComic = async (mangaId, title, img) => {
+            document.getElementById('reader-view').style.display = 'flex';
+            document.getElementById('r-title').innerText = title;
+            const body = document.getElementById('r-images');
+            body.innerHTML = "<div style='color:white; padding:50px'>Mencari chapter...</div>";
+            try {
+                const resp = await fetch(`${API}/manga/${mangaId}/feed?translatedLanguage[]=id&order[chapter]=asc&limit=500`);
+                const json = await resp.json();
+                chaptersList = json.data;
+                if (chaptersList.length > 0) loadChapterContent(0);
+                else body.innerHTML = "<div style='color:white; padding:50px'>Chapter tidak tersedia.</div>";
+            } catch(e) { body.innerHTML = "<div style='color:white; padding:50px'>Gagal memuat.</div>"; }
+        };
+
+        async function loadChapterContent(index) {
+            currentChapIdx = index;
+            const body = document.getElementById('r-images');
+            body.scrollTop = 0;
+            body.innerHTML = "<div style='color:white; padding:50px'>Memuat...</div>";
+            document.getElementById('btn-prev').disabled = (index === 0);
+            document.getElementById('btn-next').disabled = (index === chaptersList.length - 1);
+            const chapId = chaptersList[index].id;
+            const resp = await fetch(`${API}/at-home/server/${chapId}`);
+            const json = await resp.json();
+            body.innerHTML = json.chapter.dataSaver.map(f => 
+                `<img data-src="${json.baseUrl}/data-saver/${json.chapter.hash}/${f}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="lazy-manga">`
+            ).join('');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if(e.isIntersecting) { e.target.src = e.target.dataset.src; observer.unobserve(e.target); } });
+            }, { rootMargin: "800px" });
+            document.querySelectorAll('.lazy-manga').forEach(img => observer.observe(img));
+        }
+
+        window.changeChapter = (dir) => { const nextIdx = currentChapIdx + dir; if(nextIdx >= 0 && nextIdx < chaptersList.length) loadChapterContent(nextIdx); };
+        window.closeReader = () => document.getElementById('reader-view').style.display = 'none';
+        window.handleSearch = (e) => { if(e.key === 'Enter') fetchManga(e.target.value); };
+        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(e => alert("Login Gagal!"));
+        window.loginGoogle = () => signInWithPopup(auth, provider);
+        window.logout = () => signOut(auth).then(() => location.reload());
+
+        const manifest = { "name": "KomikDesu", "short_name": "KomikDesu", "start_url": "./", "display": "standalone", "background_color": "#F2F3F5", "theme_color": "#5865F2", "icons": [{"src": "https://c.termai.cc/i188/y7shy.jpg", "sizes": "512x512", "type": "image/jpeg"}] };
+        document.getElementById('pwa-manifest').setAttribute('href', 'data:application/json;base64,' + btoa(JSON.stringify(manifest)));
+    </script>
+</body>
+</html>
