@@ -4,58 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KomikDesu by kev.soft</title>
-    <meta name="referrer" content="same-origin">
+    <meta name="referrer" content="no-referrer">
     <style>
+        /* CSS tetap sama agar tampilan tidak berubah */
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        :root { --blurple: #5865F2; --bg: #F2F3F5; --white: #FFFFFF; --text: #2E3338; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
-        
-        /* Layar Login */
-        #entry-overlay { position: fixed; inset: 0; background: var(--blurple); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-card { background: var(--white); padding: 30px; border-radius: 20px; text-align: center; width: 100%; max-width: 350px; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        /* Dashboard */
+        :root { --blurple: #5865F2; --bg-light: #F2F3F5; --text-dark: #2E3338; --border: #E3E5E8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg-light); color: var(--text-dark); font-family: 'Plus Jakarta Sans', sans-serif; }
+        #entry-overlay { position: fixed; inset: 0; background: var(--blurple); z-index: 60000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { background: #fff; padding: 40px; border-radius: 24px; text-align: center; width: 100%; max-width: 400px; }
+        .btn-main { width: 100%; padding: 14px; background: var(--blurple); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; }
         #dashboard { display: none; padding-top: 80px; }
-        nav { position: fixed; top: 0; width: 100%; height: 70px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 15px; z-index: 1000; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 15px; }
-        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
-        .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #eee; }
-        .card-title { padding: 8px; font-size: 12px; font-weight: bold; height: 35px; overflow: hidden; }
-        
-        /* Reader */
-        #reader { position: fixed; inset: 0; background: #000; z-index: 100000; display: none; flex-direction: column; overflow-y: auto; }
-        .reader-bar { background: white; padding: 15px; position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; }
+        nav { position: fixed; top: 0; width: 100%; height: 70px; background: white; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; z-index: 1000; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; padding: 15px; }
+        .manga-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
+        .manga-card:active { transform: scale(0.95); }
+        .manga-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #eee; }
+        .manga-card .info { padding: 8px; font-size: 12px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #reader-view { position: fixed; inset: 0; background: #000; z-index: 70000; display: none; flex-direction: column; }
+        .reader-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth; }
+        .reader-body img { width: 100%; max-width: 800px; min-height: 200px; background: #1a1a1a; margin-bottom: 2px; }
+        .loading-spinner { padding: 20px; color: white; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="entry-overlay">
         <div class="login-card">
-            <h2 style="margin-bottom:10px">KomikDesu</h2>
-            <p id="auth-status" style="font-size:12px; color:gray; margin-bottom:15px">Silakan Login</p>
-            <input type="email" id="email" placeholder="Email" style="width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #ddd">
-            <input type="password" id="password" placeholder="Password" style="width:100%; padding:10px; margin-bottom:15px; border-radius:5px; border:1px solid #ddd">
-            <button class="btn" style="background:var(--blurple); color:white" onclick="loginEmail()">Masuk</button>
-            <button class="btn" style="background:#4285F4; color:white" onclick="loginGoogle()">Google Login</button>
+            <h2>KomikDesu</h2>
+            <p style="color:gray; margin-bottom:20px;">Masuk untuk Membaca</p>
+            <input type="email" id="email" placeholder="Email" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+            <input type="password" id="password" placeholder="Password" style="width:100%; padding:12px; margin-bottom:20px; border-radius:8px; border:1px solid #ddd;">
+            <button class="btn-main" onclick="loginEmail()">Masuk</button>
+            <button class="btn-main" style="background:#4285F4" onclick="loginGoogle()">Google Login</button>
         </div>
     </div>
 
     <main id="dashboard">
         <nav>
-            <input type="text" id="search" placeholder="Cari komik..." style="flex:1; padding:10px; border-radius:5px; border:1px solid #ddd" onkeyup="if(event.key==='Enter') fetchManga(this.value)">
-            <button onclick="logout()" style="margin-left:10px; color:red; border:none; background:none; font-weight:bold">Keluar</button>
+            <input type="text" id="search-input" placeholder="Cari komik..." style="flex:1; padding:10px; border-radius:8px; border:1px solid #ddd;" onkeyup="handleSearch(event)">
+            <button onclick="logout()" style="margin-left:10px; color:red; background:none; border:none; font-weight:bold;">OUT</button>
         </nav>
         <div class="grid" id="main-grid"></div>
     </main>
 
-    <div id="reader">
-        <div class="reader-bar">
-            <span id="rtitle" style="font-weight:bold; font-size:14px">Judul</span>
-            <button onclick="closeReader()" style="background:red; color:white; border:none; padding:5px 15px; border-radius:5px">Tutup</button>
+    <div id="reader-view">
+        <div style="background:white; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span id="r-title" style="font-weight:bold; font-size:14px;">Judul</span>
+            <button onclick="closeReader()" style="background:red; color:white; border:none; padding:6px 15px; border-radius:5px; font-weight:bold;">TUTUP</button>
         </div>
-        <div id="rimages" style="display:flex; flex-direction:column; align-items:center;"></div>
+        <div class="reader-body" id="r-images"></div>
     </div>
 
     <script type="module">
@@ -73,65 +71,100 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // Gunakan API CORS Proxy yang berbeda sebagai cadangan (Corsproxy.io)
-        async function getData(url) {
+        // CACHE DATA agar tidak loading ulang saat kembali ke menu utama
+        let mangaCache = null;
+
+        async function fastFetch(url) {
             try {
+                // Coba ambil langsung (Cepat)
                 const res = await fetch(url);
-                if (!res.ok) throw new Error();
+                if(!res.ok) throw new Error();
                 return await res.json();
-            } catch {
-                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+            } catch (e) {
+                // Jika diblokir, gunakan proxy AllOrigins (Lebih lambat tapi pasti)
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
                 const res = await fetch(proxyUrl);
-                return await res.json();
+                const data = await res.json();
+                return JSON.parse(data.contents);
             }
         }
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, user => {
             if (user) {
                 document.getElementById('entry-overlay').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
-                fetchManga();
+                if(!mangaCache) fetchManga();
             } else {
                 document.getElementById('entry-overlay').style.display = 'flex';
                 document.getElementById('dashboard').style.display = 'none';
             }
         });
 
-        window.fetchManga = async (q = "") => {
+        async function fetchManga(query = "") {
             const grid = document.getElementById('main-grid');
-            grid.innerHTML = "<p>Memuat...</p>";
+            if(!query) grid.innerHTML = "Memuat...";
             
-            const url = q 
-                ? `https://api.mangadex.org/manga?title=${encodeURIComponent(q)}&limit=20&includes[]=cover_art&contentRating[]=safe`
+            const url = query 
+                ? `https://api.mangadex.org/manga?title=${encodeURIComponent(query)}&limit=24&includes[]=cover_art&contentRating[]=safe`
                 : `https://api.mangadex.org/manga?limit=24&includes[]=cover_art&contentRating[]=safe&order[followedCount]=desc`;
 
-            try {
-                const res = await getData(url);
-                grid.innerHTML = "";
-                res.data.forEach(m => {
-                    const title = m.attributes.title.en || Object.values(m.attributes.title)[0];
-                    const cov = m.relationships.find(r => r.type === 'cover_art');
-                    const img = cov ? `https://uploads.mangadex.org/covers/${m.id}/${cov.attributes.fileName}.256.jpg` : '';
-                    
-                    const div = document.createElement('div');
-                    div.className = 'card';
-                    div.innerHTML = `<img src="${img}" onclick="openComic('${m.id}', '${title.replace(/'/g,"")}')"><div class="card-title">${title}</div>`;
-                    grid.appendChild(div);
-                });
-            } catch (e) {
-                grid.innerHTML = "<p>Gagal memuat. Coba refresh browser.</p>";
-            }
-        };
+            const json = await fastFetch(url);
+            if(!query) mangaCache = json.data;
+            renderGrid(json.data);
+        }
+
+        function renderGrid(data) {
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = "";
+            data.forEach(m => {
+                const title = m.attributes.title.en || Object.values(m.attributes.title)[0];
+                const cov = m.relationships.find(r => r.type === 'cover_art');
+                const img = `https://uploads.mangadex.org/covers/${m.id}/${cov?.attributes?.fileName}.256.jpg`;
+                const card = document.createElement('div');
+                card.className = 'manga-card';
+                card.innerHTML = `<img src="${img}" loading="lazy" onclick="openComic('${m.id}', '${title.replace(/'/g,"")}')"><div class="info">${title}</div>`;
+                grid.appendChild(card);
+            });
+        }
 
         window.openComic = async (id, title) => {
-            const r = document.getElementById('reader');
-            const imgContainer = document.getElementById('rimages');
-            r.style.display = 'flex';
-            document.getElementById('rtitle').innerText = title;
-            imgContainer.innerHTML = "<p style='color:white; padding:20px'>Mencari chapter...</p>";
-
+            document.getElementById('reader-view').style.display = 'flex';
+            document.getElementById('r-title').innerText = title;
+            const body = document.getElementById('r-images');
+            body.innerHTML = "<div class='loading-spinner'>Mengambil gambar...</div>";
+            
             try {
-                const feed = await getData(`https://api.mangadex.org/manga/${id}/feed?translatedLanguage[]=id&order[chapter]=asc`);
+                const feed = await fastFetch(`https://api.mangadex.org/manga/${id}/feed?translatedLanguage[]=id&order[chapter]=asc&limit=1`);
                 if (!feed.data || feed.data.length === 0) {
-                    imgContainer.innerHTML = "<p style='color:white; padding:20px'>Tidak ada bahasa Indonesia.</p>";
+                    body.innerHTML = "<div class='loading-spinner'>Belum ada sub Indo.</div>";
                     return;
+                }
+                const server = await fastFetch(`https://api.mangadex.org/at-home/server/${feed.data[0].id}`);
+                const hash = server.chapter.hash;
+                
+                // OPTIMASI: Gunakan Lazy Loading (Gambar baru didownload saat discroll)
+                body.innerHTML = server.chapter.dataSaver.map(img => 
+                    `<img data-src="${server.baseUrl}/data-saver/${hash}/${img}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" class="lazy">`
+                ).join('');
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(e => {
+                        if(e.isIntersecting) {
+                            e.target.src = e.target.dataset.src;
+                            observer.unobserve(e.target);
+                        }
+                    });
+                }, { rootMargin: "1000px" });
+                document.querySelectorAll('.lazy').forEach(i => observer.observe(i));
+
+            } catch (e) { body.innerHTML = "<div class='loading-spinner'>Gagal memuat.</div>"; }
+        };
+
+        window.handleSearch = (e) => { if(e.key === 'Enter') fetchManga(e.target.value); };
+        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(e => alert("Login Gagal!"));
+        window.loginGoogle = () => signInWithPopup(auth, provider);
+        window.logout = () => signOut(auth);
+        window.closeReader = () => { document.getElementById('reader-view').style.display = 'none'; };
+    </script>
+</body>
+</html>
