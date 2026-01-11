@@ -3,92 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KomikDesu by kev.soft</title>
+    <title>KomikDesu Flash</title>
     <meta name="referrer" content="no-referrer">
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-
-        :root {
-            --blurple: #5865F2; 
-            --blurple-dark: #4752c4;
-            --bg-light: #F2F3F5; 
-            --bg-white: #FFFFFF;
-            --text-dark: #2E3338;
-            --text-muted: #747F8D;
-            --border: #E3E5E8;
-            --danger: #ED4245;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        :root { --blurple: #5865F2; --bg: #F2F3F5; --white: #FFFFFF; --text: #2E3338; }
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         
-        body { 
-            background: var(--bg-light); 
-            color: var(--text-dark); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-        }
-
-        /* TAMPILAN LOGIN CHIBI PEEK */
-        #entry-overlay {
-            position: fixed; inset: 0; background: linear-gradient(135deg, var(--blurple) 0%, #404eed 100%); 
-            z-index: 60000; display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        
+        /* Login UI Tetap Sesuai Request */
+        #entry-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, var(--blurple) 0%, #404eed 100%); z-index: 60000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .login-container { position: relative; width: 100%; max-width: 400px; }
-        
-        .chibi-peek { 
-            position: absolute; top: -130px; left: 50%; transform: translateX(-50%); 
-            width: 160px; z-index: -1; animation: peekAnim 4s ease-in-out infinite; 
-        }
-        @keyframes peekAnim { 0%, 100% { transform: translateX(-50%) translateY(15px); } 50% { transform: translateX(-50%) translateY(0px); } }
+        .chibi-peek { position: absolute; top: -130px; left: 50%; transform: translateX(-50%); width: 160px; z-index: -1; animation: peek 4s infinite; }
+        @keyframes peek { 0%, 100% { transform: translateX(-50%) translateY(15px); } 50% { transform: translateX(-50%) translateY(0px); } }
+        .login-card { background: var(--white); padding: 40px 30px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.2); text-align: center; }
+        .btn-main { width: 100%; padding: 14px; background: var(--blurple); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.98); }
+        .btn-google { width: 100%; padding: 12px; background: #fff; border: 1px solid #ddd; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px; }
 
-        .login-card { 
-            background: var(--bg-white); padding: 40px 30px; border-radius: 24px; 
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center;
-        }
-
-        .login-card h2 { font-weight: 800; font-size: 28px; margin-bottom: 8px; }
-        .login-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
-
-        .input-group { text-align: left; margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; color: var(--text-muted); }
-
-        .input-box { 
-            width: 100%; padding: 14px 16px; background: #f3f4f6; border: 2px solid transparent; 
-            border-radius: 12px; font-weight: 600; font-family: inherit; transition: 0.3s;
-        }
-        .input-box:focus { border-color: var(--blurple); background: #fff; }
-
-        .btn-main { 
-            width: 100%; padding: 14px; background: var(--blurple); color: white; border: none; 
-            border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; 
-            transition: 0.3s; margin-top: 10px;
-        }
-        .btn-google { 
-            width: 100%; padding: 12px; background: #fff; color: #3c4043; border: 1px solid #dadce0; 
-            border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 15px;
-        }
-        .btn-google img { width: 20px; }
-
-        /* DASHBOARD & GRID */
-        #dashboard { display: none; padding-top: 80px; }
-        nav { position: fixed; top: 0; width: 100%; height: 75px; background: white; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; z-index: 1000; gap: 15px; }
+        /* Dashboard & Grid */
+        #dashboard { display: none; padding-top: 85px; }
+        nav { position: fixed; top: 0; width: 100%; height: 75px; background: var(--white); border-bottom: 1px solid #E3E5E8; display: flex; align-items: center; padding: 0 5%; z-index: 1000; gap: 15px; }
         .search-container { flex: 1; }
-        .search-container input { width: 100%; padding: 12px 20px; background: var(--bg-light); border: none; border-radius: 10px; font-weight: 600; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; padding: 20px; }
-        .manga-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
-        .manga-card:active { transform: scale(0.95); }
-        .manga-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #eee; }
-        .manga-card .info { padding: 10px; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .search-container input { width: 100%; padding: 12px 20px; background: var(--bg); border: none; border-radius: 12px; font-weight: 600; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px 5%; }
+        .manga-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; border: 1px solid #eee; }
+        .manga-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #ddd; display: block; }
+        .manga-card .info { padding: 10px; font-size: 12px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* READER VIEW */
+        /* Reader View */
         #reader-view { position: fixed; inset: 0; background: #000; z-index: 70000; display: none; flex-direction: column; }
-        .reader-header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .reader-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth; }
-        .reader-body img { width: 100%; max-width: 800px; display: block; background: #1a1a1a; margin-bottom: 2px; min-height: 250px; }
-        .loading-spinner { color: white; padding: 40px; text-align: center; font-weight: bold; }
+        .reader-header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+        .reader-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; scroll-behavior: auto; }
+        .reader-body img { width: 100%; max-width: 750px; display: block; background: #111; min-height: 300px; }
+        .btn-close { background: #ED4245; color: white; padding: 8px 16px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -97,13 +45,12 @@
         <div class="login-container">
             <img src="https://c.termai.cc/i188/y7shy.jpg" class="chibi-peek">
             <div class="login-card">
-                <h2>KomikDesu</h2>
-                <p>Masuk untuk Membaca</p>
-                <div class="input-group"><label>Email</label><input type="email" id="email" class="input-box" placeholder="nama@email.com"></div>
-                <div class="input-group"><label>Password</label><input type="password" id="password" class="input-box" placeholder="••••••••"></div>
+                <h2 style="font-weight: 800; margin-bottom: 10px;">KomikDesu</h2>
+                <input type="email" id="email" placeholder="Email" style="width:100%; padding:14px; margin-bottom:10px; border-radius:12px; border:1px solid #eee; background:#f9f9f9">
+                <input type="password" id="password" placeholder="Password" style="width:100%; padding:14px; margin-bottom:20px; border-radius:12px; border:1px solid #eee; background:#f9f9f9">
                 <button class="btn-main" onclick="loginEmail()">Masuk Sekarang</button>
                 <button class="btn-google" onclick="loginGoogle()">
-                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png"> Lanjutkan dengan Google
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="20"> Google Login
                 </button>
             </div>
         </div>
@@ -111,16 +58,16 @@
 
     <main id="dashboard">
         <nav>
-            <div class="search-container"><input type="text" id="search-input" placeholder="Cari komik..." onkeyup="handleSearch(event)"></div>
-            <button onclick="logout()" style="color:red; background:none; border:none; font-weight:800; cursor:pointer;">OUT</button>
+            <div class="search-container"><input type="text" id="search-input" placeholder="Cari kilat..." onkeyup="handleSearch(event)"></div>
+            <div style="font-size: 11px; font-weight: 800; color: #ED4245; cursor: pointer;" onclick="logout()">LOGOUT</div>
         </nav>
         <div class="grid" id="main-grid"></div>
     </main>
 
     <div id="reader-view">
         <div class="reader-header">
-            <span id="r-title" style="font-weight:800; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">Judul</span>
-            <button onclick="closeReader()" style="background:red; color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">TUTUP</button>
+            <span id="r-title">Judul Komik</span>
+            <button class="btn-close" onclick="closeReader()">Tutup</button>
         </div>
         <div class="reader-body" id="r-images"></div>
     </div>
@@ -140,27 +87,28 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        let mangaCache = null;
+        // FLASH ENGINE: Mengambil data tanpa menunggu lama
+        async function flashFetch(url) {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 4000); // 4 detik limit
 
-        // MESIN LOADING CEPAT (SMART FETCH)
-        async function fastFetch(url) {
             try {
-                const res = await fetch(url);
-                if(!res.ok) throw new Error();
+                // Jalur Utama (Direct)
+                const res = await fetch(url, { signal: controller.signal });
                 return await res.json();
             } catch (e) {
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                const res = await fetch(proxyUrl);
+                // Jalur Cadangan Kilat (Proxy AllOrigins)
+                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
                 const data = await res.json();
                 return JSON.parse(data.contents);
-            }
+            } finally { clearTimeout(timeout); }
         }
 
         onAuthStateChanged(auth, user => {
-            if (user) {
+            if(user) {
                 document.getElementById('entry-overlay').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
-                if(!mangaCache) fetchManga();
+                fetchManga();
             } else {
                 document.getElementById('entry-overlay').style.display = 'flex';
                 document.getElementById('dashboard').style.display = 'none';
@@ -172,40 +120,38 @@
             if(!query) grid.innerHTML = "Memuat...";
             const url = query 
                 ? `https://api.mangadex.org/manga?title=${encodeURIComponent(query)}&limit=24&includes[]=cover_art&contentRating[]=safe`
-                : `https://api.mangadex.org/manga?limit=24&includes[]=cover_art&contentRating[]=safe&order[followedCount]=desc`;
+                : `https://api.mangadex.org/manga?limit=30&includes[]=cover_art&contentRating[]=safe&order[followedCount]=desc`;
             
-            const json = await fastFetch(url);
-            if(!query) mangaCache = json.data;
+            const json = await flashFetch(url);
             grid.innerHTML = "";
             json.data.forEach(m => {
                 const title = m.attributes.title.en || Object.values(m.attributes.title)[0];
                 const cov = m.relationships.find(r => r.type === 'cover_art');
                 const img = `https://uploads.mangadex.org/covers/${m.id}/${cov?.attributes?.fileName}.256.jpg`;
-                const card = document.createElement('div');
-                card.className = 'manga-card';
-                card.innerHTML = `<img src="${img}" loading="lazy" onclick="openComic('${m.id}', '${title.replace(/'/g,"")}')"><div class="info">${title}</div>`;
-                grid.appendChild(card);
+                const div = document.createElement('div');
+                div.className = 'manga-card';
+                div.innerHTML = `<img src="${img}" onclick="openComic('${m.id}', '${title.replace(/'/g,"")}')"><div class="info">${title}</div>`;
+                grid.appendChild(div);
             });
         }
 
         window.openComic = async (id, title) => {
-            document.getElementById('reader-view').style.display = 'flex';
-            document.getElementById('r-title').innerText = title;
+            const reader = document.getElementById('reader-view');
             const body = document.getElementById('r-images');
-            body.innerHTML = "<div class='loading-spinner'>Mengambil gambar...</div>";
-            
+            reader.style.display = 'flex';
+            document.getElementById('r-title').innerText = title;
+            body.innerHTML = "<p style='color:white; padding:50px;'>Membuka Kilat...</p>";
+
             try {
-                const feed = await fastFetch(`https://api.mangadex.org/manga/${id}/feed?translatedLanguage[]=id&order[chapter]=asc&limit=1`);
-                if (!feed.data || feed.data.length === 0) {
-                    body.innerHTML = "<div class='loading-spinner'>Sub Indo belum tersedia.</div>";
-                    return;
-                }
-                const server = await fastFetch(`https://api.mangadex.org/at-home/server/${feed.data[0].id}`);
+                const feed = await flashFetch(`https://api.mangadex.org/manga/${id}/feed?translatedLanguage[]=id&order[chapter]=asc&limit=1`);
+                if(!feed.data.length) { body.innerHTML = "<p style='color:white;'>Tidak ada Sub Indo.</p>"; return; }
+                
+                const server = await flashFetch(`https://api.mangadex.org/at-home/server/${feed.data[0].id}`);
                 const hash = server.chapter.hash;
                 
-                // LAZY LOADING IMAGES (Paling Cepat)
+                // FLASH RENDER: Memuat gambar saat discroll (Lazy)
                 body.innerHTML = server.chapter.dataSaver.map(img => 
-                    `<img data-src="${server.baseUrl}/data-saver/${hash}/${img}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" class="lazy">`
+                    `<img data-src="${server.baseUrl}/data-saver/${hash}/${img}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="lazy">`
                 ).join('');
 
                 const observer = new IntersectionObserver((entries) => {
@@ -215,16 +161,16 @@
                             observer.unobserve(e.target);
                         }
                     });
-                }, { rootMargin: "1000px" });
+                }, { rootMargin: "1200px" }); // Preload gambar 1200px sebelum muncul di layar
                 document.querySelectorAll('.lazy').forEach(i => observer.observe(i));
-            } catch (e) { body.innerHTML = "<div class='loading-spinner'>Gagal memuat.</div>"; }
+            } catch(e) { body.innerHTML = "<p style='color:white;'>Gagal memuat.</p>"; }
         };
 
         window.handleSearch = (e) => { if(e.key === 'Enter') fetchManga(e.target.value); };
-        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(e => alert("Gagal!"));
+        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
         window.loginGoogle = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth).then(() => location.reload());
-        window.closeReader = () => { document.getElementById('reader-view').style.display = 'none'; };
+        window.closeReader = () => { document.getElementById('reader-view').style.display = 'none'; document.getElementById('r-images').innerHTML = ""; };
     </script>
 </body>
 </html>
