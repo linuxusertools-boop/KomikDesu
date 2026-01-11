@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KomikDesu by kev.soft</title>
     
+    <meta name="referrer" content="no-referrer">
     <meta name="theme-color" content="#5865F2">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -35,7 +36,6 @@
             display: flex; flex-direction: column; min-height: 100vh;
         }
 
-        /* --- LOGIN PAGE PREMIUM LOOK --- */
         #entry-overlay {
             position: fixed; inset: 0; background: linear-gradient(135deg, var(--blurple) 0%, #404eed 100%); 
             z-index: 60000; display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -77,7 +77,6 @@
         .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #eee; }
         .divider span { padding: 0 15px; color: #aaa; }
 
-        /* Tombol Google dengan Logo */
         .btn-google { 
             width: 100%; padding: 12px; background: #fff; color: #3c4043; border: 1px solid #dadce0; 
             border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; 
@@ -86,7 +85,6 @@
         .btn-google img { width: 20px; height: 20px; }
         .btn-google:hover { background: #f8f9fa; border-color: #d2e3fc; box-shadow: 0 1px 3px rgba(60,64,67, 0.3); }
 
-        /* --- DASHBOARD & READER CSS TETAP SAMA --- */
         #dashboard { display: none; padding-top: 80px; flex: 1; }
         nav { position: fixed; top: 0; width: 100%; height: 75px; background: var(--bg-white); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 5%; z-index: 1000; gap: 15px; }
         .search-container { flex: 1; }
@@ -98,10 +96,12 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding: 25px 5%; }
         .manga-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); position: relative; cursor: pointer; }
         .manga-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+        .manga-card .info { padding: 10px; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
         #reader-view { position: fixed; inset: 0; background: #0b0b0b; z-index: 70000; display: none; flex-direction: column; }
         .reader-header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .reader-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: #0b0b0b; }
-        .reader-body img { width: 100%; max-width: 800px; height: auto; display: block; object-fit: contain; }
+        .reader-body img { width: 100%; max-width: 800px; height: auto; display: block; object-fit: contain; margin-bottom: 2px; }
         .reader-nav-footer { background: #fff; padding: 20px; display: flex; justify-content: center; gap: 15px; border-top: 1px solid var(--border); }
         .btn-nav { padding: 10px 25px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; background: var(--blurple); color: white; }
     </style>
@@ -111,25 +111,19 @@
     <div id="entry-overlay">
         <div class="login-container">
             <img src="https://c.termai.cc/i188/y7shy.jpg" class="chibi-peek">
-            
             <div class="login-card">
                 <h2>KomikDesu</h2>
                 <p>Masuk untuk simpan favorit & riwayat</p>
-                
                 <div class="input-group">
                     <label>Email</label>
                     <input type="email" id="email" class="input-box" placeholder="nama@email.com">
                 </div>
-                
                 <div class="input-group">
                     <label>Password</label>
                     <input type="password" id="password" class="input-box" placeholder="••••••••">
                 </div>
-                
                 <button class="btn-main" onclick="loginEmail()">Masuk Sekarang</button>
-                
                 <div class="divider"><span>Atau</span></div>
-                
                 <button class="btn-google" onclick="loginGoogle()">
                     <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google Logo">
                     Lanjutkan dengan Google
@@ -157,7 +151,6 @@
                 <div class="tab-item" id="tab-history" onclick="changeTab('history')">History</div>
             </div>
         </div>
-
         <div class="grid" id="main-grid"></div>
     </main>
 
@@ -174,7 +167,6 @@
     </div>
 
     <script type="module">
-        // JavaScript Logic (Firebase & API) sama dengan versi sebelumnya
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -193,7 +185,10 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
         const provider = new GoogleAuthProvider();
-        const API = "https://api.mangadex.org";
+        
+        // GUNAKAN PROXY UNTUK MENGHINDARI CORS DI VERCEL & MOBILE
+        const API_BASE = "https://api.mangadex.org";
+        const PROXY = "https://api.allorigins.win/raw?url="; 
 
         let currentUser = null;
         let userData = { favorites: [], history: [] };
@@ -204,7 +199,7 @@
         onAuthStateChanged(auth, user => {
             if(user) {
                 currentUser = user;
-                document.getElementById('user-display').innerText = user.email.split('@')[0].toUpperCase();
+                document.getElementById('user-display').innerText = (user.email || "User").split('@')[0].toUpperCase();
                 document.getElementById('entry-overlay').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
                 onValue(ref(db, 'users/' + user.uid), (snap) => {
@@ -230,23 +225,39 @@
 
         async function fetchManga(query = "") {
             const grid = document.getElementById('main-grid');
-            grid.innerHTML = "Memuat...";
-            let url = query ? `${API}/manga?title=${query}&limit=20&includes[]=cover_art&availableTranslatedLanguage[]=id` : `${API}/manga?limit=20&availableTranslatedLanguage[]=id&includes[]=cover_art&contentRating[]=safe&order[followedCount]=desc`;
-            const resp = await fetch(url);
-            const json = await resp.json();
-            renderList(json.data);
+            grid.innerHTML = "<div style='grid-column:1/-1; text-align:center;'>Memuat Komik...</div>";
+            
+            let url = query 
+                ? `${API_BASE}/manga?title=${encodeURIComponent(query)}&limit=20&includes[]=cover_art&availableTranslatedLanguage[]=id&contentRating[]=safe&contentRating[]=suggestive`
+                : `${API_BASE}/manga?limit=24&availableTranslatedLanguage[]=id&includes[]=cover_art&contentRating[]=safe&order[followedCount]=desc`;
+
+            try {
+                // Fetch menggunakan AllOrigins Proxy jika gagal langsung
+                const resp = await fetch(url);
+                const json = await resp.json();
+                renderList(json.data);
+            } catch (e) {
+                // Fallback ke Proxy jika diblokir
+                const resp = await fetch(PROXY + encodeURIComponent(url));
+                const json = await resp.json();
+                renderList(json.data);
+            }
         }
 
         function renderList(data) {
             const grid = document.getElementById('main-grid');
-            grid.innerHTML = data.length ? "" : "<div style='grid-column:1/-1; text-align:center; padding:50px;'>Kosong.</div>";
+            grid.innerHTML = data.length ? "" : "<div style='grid-column:1/-1; text-align:center; padding:50px;'>Komik tidak ditemukan.</div>";
             data.forEach(m => {
-                const title = m.attributes.title.en || Object.values(m.attributes.title)[0];
+                const title = m.attributes.title.en || m.attributes.title.ja || Object.values(m.attributes.title)[0];
                 const cov = m.relationships?.find(r => r.type === 'cover_art');
-                const img = m.savedImg || `https://uploads.mangadex.org/covers/${m.id}/${cov?.attributes?.fileName}.256.jpg`;
+                const img = `https://uploads.mangadex.org/covers/${m.id}/${cov?.attributes?.fileName}.256.jpg`;
+                
                 const card = document.createElement('div');
                 card.className = 'manga-card';
-                card.innerHTML = `<img src="${img}" loading="lazy" onclick="openComic('${m.id}', '${title.replace(/'/g,"")}', '${img}')"><div class="info">${title}</div>`;
+                card.innerHTML = `
+                    <img src="${img}" alt="cover" loading="lazy" onclick="openComic('${m.id}', '${title.replace(/'/g,"")}', '${img}')">
+                    <div class="info">${title}</div>
+                `;
                 grid.appendChild(card);
             });
         }
@@ -255,43 +266,93 @@
             document.getElementById('reader-view').style.display = 'flex';
             document.getElementById('r-title').innerText = title;
             const body = document.getElementById('r-images');
-            body.innerHTML = "<div style='color:white; padding:50px'>Mencari chapter...</div>";
+            body.innerHTML = "<div style='color:white; padding:50px; text-align:center;'>Mencari Chapter Indonesia...</div>";
+            
             try {
-                const resp = await fetch(`${API}/manga/${mangaId}/feed?translatedLanguage[]=id&order[chapter]=asc&limit=500`);
+                const url = `${API_BASE}/manga/${mangaId}/feed?translatedLanguage[]=id&order[chapter]=asc&limit=500`;
+                const resp = await fetch(url);
                 const json = await resp.json();
                 chaptersList = json.data;
-                if (chaptersList.length > 0) loadChapterContent(0);
-                else body.innerHTML = "<div style='color:white; padding:50px'>Chapter tidak tersedia.</div>";
-            } catch(e) { body.innerHTML = "<div style='color:white; padding:50px'>Gagal memuat.</div>"; }
+                
+                if (chaptersList.length > 0) {
+                    loadChapterContent(0);
+                } else {
+                    body.innerHTML = "<div style='color:white; padding:50px; text-align:center;'>Maaf, belum ada Chapter bahasa Indonesia untuk komik ini.</div>";
+                }
+            } catch(e) { 
+                body.innerHTML = "<div style='color:white; padding:50px; text-align:center;'>Gagal memuat chapter. Coba lagi nanti.</div>"; 
+            }
         };
 
         async function loadChapterContent(index) {
             currentChapIdx = index;
             const body = document.getElementById('r-images');
             body.scrollTop = 0;
-            body.innerHTML = "<div style='color:white; padding:50px'>Memuat...</div>";
+            body.innerHTML = "<div style='color:white; padding:50px; text-align:center;'>Membuka Halaman...</div>";
+            
             document.getElementById('btn-prev').disabled = (index === 0);
             document.getElementById('btn-next').disabled = (index === chaptersList.length - 1);
+            
             const chapId = chaptersList[index].id;
-            const resp = await fetch(`${API}/at-home/server/${chapId}`);
-            const json = await resp.json();
-            body.innerHTML = json.chapter.dataSaver.map(f => 
-                `<img data-src="${json.baseUrl}/data-saver/${json.chapter.hash}/${f}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="lazy-manga">`
-            ).join('');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(e => { if(e.isIntersecting) { e.target.src = e.target.dataset.src; observer.unobserve(e.target); } });
-            }, { rootMargin: "800px" });
-            document.querySelectorAll('.lazy-manga').forEach(img => observer.observe(img));
+            try {
+                const resp = await fetch(`${API_BASE}/at-home/server/${chapId}`);
+                const json = await resp.json();
+                const hash = json.chapter.hash;
+                const pages = json.chapter.dataSaver;
+                
+                body.innerHTML = pages.map(f => 
+                    `<img data-src="${json.baseUrl}/data-saver/${hash}/${f}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="lazy-manga">`
+                ).join('');
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(e => { 
+                        if(e.isIntersecting) { 
+                            e.target.src = e.target.dataset.src; 
+                            observer.unobserve(e.target); 
+                        } 
+                    });
+                }, { rootMargin: "1000px" });
+                
+                document.querySelectorAll('.lazy-manga').forEach(img => observer.observe(img));
+            } catch(e) {
+                body.innerHTML = "<div style='color:white; padding:50px; text-align:center;'>Gagal memuat gambar.</div>";
+            }
         }
 
-        window.changeChapter = (dir) => { const nextIdx = currentChapIdx + dir; if(nextIdx >= 0 && nextIdx < chaptersList.length) loadChapterContent(nextIdx); };
-        window.closeReader = () => document.getElementById('reader-view').style.display = 'none';
-        window.handleSearch = (e) => { if(e.key === 'Enter') fetchManga(e.target.value); };
-        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(e => alert("Login Gagal!"));
+        window.changeChapter = (dir) => { 
+            const nextIdx = currentChapIdx + dir; 
+            if(nextIdx >= 0 && nextIdx < chaptersList.length) loadChapterContent(nextIdx); 
+        };
+
+        window.closeReader = () => {
+            document.getElementById('reader-view').style.display = 'none';
+            document.getElementById('r-images').innerHTML = "";
+        };
+
+        window.handleSearch = (e) => { 
+            if(e.key === 'Enter') fetchManga(e.target.value); 
+        };
+
+        window.loginEmail = () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            if(!email || !pass) return alert("Isi email dan password!");
+            signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Login Gagal! Periksa email/password."));
+        };
+
         window.loginGoogle = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth).then(() => location.reload());
 
-        const manifest = { "name": "KomikDesu", "short_name": "KomikDesu", "start_url": "./", "display": "standalone", "background_color": "#F2F3F5", "theme_color": "#5865F2", "icons": [{"src": "https://c.termai.cc/i188/y7shy.jpg", "sizes": "512x512", "type": "image/jpeg"}] };
+        // Manifest Otomatis
+        const manifest = { 
+            "name": "KomikDesu", 
+            "short_name": "KomikDesu", 
+            "start_url": "./", 
+            "display": "standalone", 
+            "background_color": "#F2F3F5", 
+            "theme_color": "#5865F2", 
+            "icons": [{"src": "https://c.termai.cc/i188/y7shy.jpg", "sizes": "512x512", "type": "image/jpeg"}] 
+        };
         document.getElementById('pwa-manifest').setAttribute('href', 'data:application/json;base64,' + btoa(JSON.stringify(manifest)));
     </script>
 </body>
