@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KevTools Architect v12.8</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700;800&display=swap');
+        body { background-color: #050506; color: #a1a1aa; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; }
+        
+        .hero-banner {
+            height: 280px;
+            background: linear-gradient(to bottom, rgba(5, 5, 6, 0.1), #050506), url('https://666.com/assets/img/img_2_01.jpg');
+            background-size: cover; background-position: center; border-bottom: 1px solid #1a1a1d;
+            display: flex; align-items: center;
+        }
+
+        .panel-glow { background: #0c0c0e; border: 1px solid #1a1a1d; border-radius: 16px; transition: 0.3s; }
+        .input-kev { background: #000; border: 1px solid #222225; color: #3b82f6; font-size: 11px; transition: 0.3s; }
+        .input-kev:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.1); }
+        
+        .op-card { border: 1px solid #1a1a1d; cursor: pointer; transition: 0.2s; background: #080809; position: relative; }
+        .op-active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); color: white; }
+        .op-active::after { content: 'READY'; position: absolute; top: 5px; right: 8px; color: #3b82f6; font-size: 7px; font-weight: 800; }
+        
+        .high-mode-active { border-color: #ef4444 !important; background: rgba(239, 68, 68, 0.05) !important; color: #f87171 !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.1); }
+        
+        th { font-size: 9px; color: #52525b; text-transform: uppercase; padding: 12px; border-bottom: 1px solid #1a1a1d; text-align: left; }
+        td { font-size: 10px; padding: 10px 12px; border-bottom: 1px solid #080809; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #1a1a1d; border-radius: 10px; }
+        .glow-text { text-shadow: 0 0 30px rgba(59, 130, 246, 0.5); }
+    </style>
+</head>
+<body>
+
+<div class="hero-banner mb-8">
+    <div class="max-w-[1700px] mx-auto w-full px-8">
+        <div class="flex flex-col lg:flex-row justify-between items-end gap-6">
+            <div>
+                <h1 class="text-7xl font-black text-white italic tracking-tighter uppercase glow-text">Kev<span class="text-blue-500">Tools</span></h1>
+                <p class="text-[10px] text-zinc-400 tracking-[0.5em] mt-2 font-bold bg-black/60 inline-block px-3 py-1 rounded border border-zinc-800">ULTIMATUM v12.8 • RENAME HIGH ENGINE</p>
+            </div>
+            <div class="flex flex-wrap gap-3 pb-2">
+                <input type="file" id="zipInput" class="hidden" accept=".zip">
+                <button onclick="document.getElementById('zipInput').click()" class="bg-zinc-900/90 backdrop-blur text-white px-8 py-4 rounded-xl text-xs font-black border border-zinc-700 hover:bg-zinc-800 transition">📂 LOAD ZIP</button>
+                <button onclick="igniteEngine()" class="bg-blue-600 text-white px-12 py-4 rounded-xl text-xs font-black shadow-[0_0_40px_rgba(59,130,246,0.3)] active:scale-95 transition uppercase tracking-widest">Execute Engine</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-[1700px] mx-auto px-4 md:px-8 pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-4 space-y-6">
+            <div class="panel-glow p-6 border-t border-blue-900/20">
+                <h3 class="text-[10px] font-black text-zinc-500 mb-4 uppercase tracking-widest">Phase 01: Mapping</h3>
+                <div class="space-y-4">
+                    <input type="text" id="targetWord" class="w-full input-kev p-4 rounded-xl text-sm" placeholder="Target Pattern (e.g. HALO)">
+                    <input type="text" id="replaceWord" class="w-full input-kev p-4 rounded-xl text-sm" placeholder="Replacement Pattern (e.g. PAPA)">
+                </div>
+                
+                <div class="mt-6">
+                    <button id="btnRenameHigh" onclick="toggleHighMode()" class="w-full p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 text-[10px] font-black tracking-[0.2em] transition-all flex items-center justify-between group">
+                        <span>RENAME HIGH MODE</span>
+                        <div id="highIndicator" class="w-2 h-2 rounded-full bg-zinc-700 group-hover:bg-zinc-500 shadow-sm"></div>
+                    </button>
+                    <p class="text-[8px] text-zinc-600 mt-2 italic">Aktifkan untuk memproses format ekstrim (Simbol, Junk Karakter, & Mixed Case).</p>
+                </div>
+            </div>
+
+            <div class="panel-glow p-6">
+                <h3 class="text-[10px] font-black text-zinc-500 mb-4 uppercase tracking-widest">Phase 02: Selection Protocols</h3>
+                <div class="grid grid-cols-1 gap-2" id="opGrid">
+                    <div onclick="setOp('global')" id="op_global" class="op-card p-3 rounded-lg op-active"><p class="text-[10px] font-bold">1. GLOBAL OVERHAUL</p></div>
+                    <div onclick="setOp('content')" id="op_content" class="op-card p-3 rounded-lg"><p class="text-[10px] font-bold">2. CONTENT ONLY</p></div>
+                    <div onclick="setOp('path')" id="op_path" class="op-card p-3 rounded-lg"><p class="text-[10px] font-bold">3. PATH ONLY</p></div>
+                    <div onclick="setOp('copy')" id="op_copy" class="op-card p-3 rounded-lg"><p class="text-[10px] font-bold">4. DUPLICATE (COPY)</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-4 space-y-6">
+            <div class="panel-glow p-6 h-full border-t border-zinc-800">
+                <h3 class="text-[10px] font-black text-zinc-500 mb-6 uppercase tracking-widest">Phase 03: Logic Configs</h3>
+                <div class="space-y-3">
+                    <label class="flex items-center justify-between p-3 bg-zinc-900/50 rounded-lg text-[10px] cursor-pointer">
+                        <span>Smart Case Preservation</span>
+                        <input type="checkbox" id="c_case" checked class="accent-blue-500">
+                    </label>
+                    <label class="flex items-center justify-between p-3 bg-zinc-900/50 rounded-lg text-[10px] cursor-pointer">
+                        <span>Protection: API/Links</span>
+                        <input type="checkbox" id="c_links" checked class="accent-blue-500">
+                    </label>
+                    <div class="p-3 bg-zinc-900/50 rounded-lg">
+                        <span class="text-[10px] block mb-2">Extension Filter</span>
+                        <input type="text" id="c_ext" class="w-full input-kev p-2 rounded" placeholder=".js, .json">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-4 space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="panel-glow p-5 text-center"><p class="text-[9px] text-zinc-600">FILES</p><p id="sTotal" class="text-2xl font-bold text-white">0</p></div>
+                <div class="panel-glow p-5 text-center border-b-2 border-blue-600"><p class="text-[9px] text-zinc-600">AFFECTED</p><p id="sAff" class="text-2xl font-bold text-blue-500">0</p></div>
+            </div>
+            <div class="panel-glow rounded-2xl overflow-hidden flex flex-col h-[500px]">
+                <div class="bg-zinc-900/30 p-4 border-b border-zinc-800 text-[10px] font-black uppercase flex justify-between">
+                    <span>Audit Trail Log</span>
+                    <button onclick="document.getElementById('logBody').innerHTML = ''" class="hover:text-white">CLEAR</button>
+                </div>
+                <div class="overflow-y-auto flex-1">
+                    <table class="w-full">
+                        <tbody id="logBody" class="text-zinc-600"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeOp = 'global';
+    let highMode = false;
+
+    function toggleHighMode() {
+        highMode = !highMode;
+        const btn = document.getElementById('btnRenameHigh');
+        const indicator = document.getElementById('highIndicator');
+        btn.classList.toggle('high-mode-active', highMode);
+        indicator.style.backgroundColor = highMode ? '#ef4444' : '#3f3f46';
+        indicator.style.boxShadow = highMode ? '0 0 10px #ef4444' : 'none';
+    }
+
+    function setOp(op) {
+        activeOp = op;
+        document.querySelectorAll('.op-card').forEach(c => c.classList.remove('op-active'));
+        document.getElementById('op_' + op).classList.add('op-active');
+    }
+
+    // CORE ENGINE: Smart Transfer Case & High Match
+    function transferCase(original, replacement) {
+        if (!document.getElementById('c_case').checked) return replacement;
+        
+        // 1. ALL UPPER: HALO -> PAPA
+        if (original === original.toUpperCase() && original !== original.toLowerCase()) return replacement.toUpperCase();
+        // 2. ALL LOWER: halo -> papa
+        if (original === original.toLowerCase() && original !== original.toUpperCase()) return replacement.toLowerCase();
+        // 3. CAPITALIZED: Halo -> Papa
+        if (original[0] === original[0].toUpperCase()) return replacement[0].toUpperCase() + replacement.slice(1).toLowerCase();
+        
+        return replacement;
+    }
+
+    async function igniteEngine() {
+        const target = document.getElementById('targetWord').value;
+        const replace = document.getElementById('replaceWord').value;
+        const zipFile = document.getElementById('zipInput').files[0];
+        if (!zipFile || !target) return alert("ZIP & Target Wajib!");
+
+        const zip = await JSZip.loadAsync(zipFile);
+        const newZip = new JSZip();
+        let s = { total: 0, aff: 0 };
+
+        // REGEX ENGINE
+        // Jika HighMode aktif, gunakan regex 'gi' tanpa boundary agar bisa mendeteksi di tengah simbol/teks acak
+        const regex = new RegExp(target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), highMode ? 'gi' : 'g');
+
+        const jobs = [];
+        zip.forEach((path, entry) => {
+            if (entry.dir) return;
+            s.total++;
+            jobs.push((async () => {
+                let data = await entry.async("string");
+                let fPath = path;
+                let hits = 0;
+
+                // 1. Content Engine
+                if (activeOp !== 'path') {
+                    const matches = data.match(regex);
+                    if (matches) {
+                        hits = matches.length;
+                        data = data.replace(regex, (match) => {
+                            if (document.getElementById('c_links').checked && match.includes('http')) return match;
+                            return transferCase(match, replace);
+                        });
+                    }
+                }
+
+                // 2. Path Engine
+                if (activeOp !== 'content') {
+                    if (path.toLowerCase().includes(target.toLowerCase())) {
+                        fPath = path.split('/').map(p => p.replace(regex, m => transferCase(m, replace))).join('/');
+                    }
+                }
+
+                newZip.file(fPath, data);
+                if (hits > 0 || fPath !== path) { s.aff++; addLog(path, hits); }
+            })());
+        });
+
+        await Promise.all(jobs);
+        document.getElementById('sTotal').innerText = s.total;
+        document.getElementById('sAff').innerText = s.aff;
+        
+        const blob = await newZip.generateAsync({type:"blob"});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `KEVTOOLS_v12.8_${Date.now()}.zip`;
+        a.click();
+    }
+
+    function addLog(src, hits) {
+        const r = document.createElement('tr');
+        r.innerHTML = `<td class="p-2 border-b border-zinc-900 truncate max-w-[250px] text-[9px]">${src}</td><td class="p-2 border-b border-zinc-900 text-right text-blue-500 font-bold">${hits} Hits</td>`;
+        document.getElementById('logBody').appendChild(r);
+    }
+</script>
+</body>
+</html>
